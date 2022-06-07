@@ -49,9 +49,9 @@ AC_DEFUN([AC_LIBTIRPC_OLD], [
   dnl Also must have the headers installed where we expect
   dnl to look for headers; add -I compiler option if found
   AS_IF([test "$has_libtirpc" = "yes"],
-        [AC_CHECK_HEADERS([${tirpc_header_dir}/netconfig.h],
-                          [AC_SUBST([AM_CPPFLAGS], ["-I${tirpc_header_dir}"])],
-                          [has_libtirpc="no"])])
+        [AC_CHECK_FILE([${tirpc_header_dir}/netconfig.h],
+                       [AC_SUBST([AM_CPPFLAGS], ["-I${tirpc_header_dir}"])],
+                       [has_libtirpc="no"])])
 
   dnl Now set $LIBTIRPC accordingly
   AS_IF([test "$has_libtirpc" = "yes"],
