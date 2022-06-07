@@ -37,8 +37,7 @@ dnl
 AC_DEFUN([AC_LIBTIRPC_OLD], [
 
   AC_ARG_WITH([tirpcinclude],
-              [AC_HELP_STRING([--with-tirpcinclude=DIR],
-                              [use TI-RPC headers in DIR])],
+              [AS_HELP_STRING([--with-tirpcinclude=DIR],[use TI-RPC headers in DIR])],
               [tirpc_header_dir=$withval],
               [tirpc_header_dir=/usr/include/tirpc])
 
