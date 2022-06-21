@@ -295,9 +295,9 @@ main(int argc, char *argv[])
 				(const gss_OID)GSS_C_NT_HOSTBASED_SERVICE);
 		if (status == FALSE) {
 			printerr(0, "unable to obtain root (machine) credentials\n");
-			printerr(0, "do you have a keytab entry for "
-				"nfs/<your.host>@<YOUR.REALM> in "
-				"/etc/krb5.keytab?\n");
+			printerr(0, "do you have a keytab entry for %s in"
+				"/etc/krb5.keytab?\n",
+				principal ? principal : "nfs/<your.host>@<YOUR.REALM>");
 			exit(1);
 		}
 	} else {
