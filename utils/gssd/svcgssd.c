@@ -211,9 +211,6 @@ main(int argc, char *argv[])
 	rpc_verbosity = conf_get_num("svcgssd", "RPC-Verbosity", rpc_verbosity);
 	idmap_verbosity = conf_get_num("svcgssd", "IDMAP-Verbosity", idmap_verbosity);
 
-	/* We don't need the config anymore */
-	conf_cleanup();
-
 	while ((opt = getopt(argc, argv, "fivrnp:")) != -1) {
 		switch (opt) {
 			case 'f':
@@ -327,6 +324,9 @@ main(int argc, char *argv[])
 	}
 
 	daemon_ready();
+
+	/* We don't need the config anymore */
+	conf_cleanup();
 
 	nfs4_init_name_mapping(NULL); /* XXX: should only do this once */
 
