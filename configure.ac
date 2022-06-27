@@ -71,6 +71,18 @@ AC_ARG_WITH(systemd,
 	AM_CONDITIONAL(INSTALL_SYSTEMD, [test "$use_systemd" = 1])
 	AC_SUBST(unitdir)
 
+modprobedir=/usr/lib/modprobe.d
+AC_ARG_WITH(modprobedir,
+	[AS_HELP_STRING([--with-modprobedir@<:@=modprobe-dir-path@:>@],[install modprobe config files @<:@Default: /usr/lib/modprobe.d@:>@])],
+	if test "$withval" != "no" ; then
+		modprobedir=$withval
+	else
+		modprobedir=
+	fi
+	)
+	AM_CONDITIONAL(INSTALL_MODPROBEDIR, [test -n "$modprobedir"])
+	AC_SUBST(modprobedir)
+
 AC_ARG_ENABLE(nfsv4,
 	[AS_HELP_STRING([--disable-nfsv4],[disable support for NFSv4 @<:@default=no@:>@])],
 	enable_nfsv4=$enableval,
