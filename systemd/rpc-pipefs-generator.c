@@ -28,7 +28,7 @@ static int generate_mount_unit(const char *pipefs_path, const char *pipefs_unit,
 {
 	char	*path;
 	FILE	*f;
-	size_t size = (strlen(dirname) + 1 + strlen(pipefs_unit));
+	size_t size = (strlen(dirname) + 1 + strlen(pipefs_unit) + 1);
 
 	path = malloc(size);
 	if (!path)
