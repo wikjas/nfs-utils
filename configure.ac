@@ -273,6 +273,9 @@ AC_LIBCAP
 dnl Check for -lxml2
 AC_LIBXML2
 
+dnl Check for -lmount
+PKG_CHECK_MODULES([LIBMOUNT], [mount])
+
 # Check whether user wants TCP wrappers support
 AC_TCP_WRAPPERS
 
