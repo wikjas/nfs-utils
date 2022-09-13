@@ -462,7 +462,7 @@ static void sig_die(int signal)
 		unlink(PID_FILE);
 	}
 	BL_LOG_ERR("exit on signal(%d)\n", signal);
-	exit(1);
+	exit(0);
 }
 static void usage(void)
 {
