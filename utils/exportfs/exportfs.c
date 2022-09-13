@@ -69,14 +69,14 @@ static int _lockfd = -1;
  * need these additional lockfile() routines.
  */
 static void
-grab_lockfile()
+grab_lockfile(void)
 {
 	_lockfd = open(lockfile, O_CREAT|O_RDWR, 0666);
 	if (_lockfd != -1)
 		lockf(_lockfd, F_LOCK, 0);
 }
 static void
-release_lockfile()
+release_lockfile(void)
 {
 	if (_lockfd != -1) {
 		lockf(_lockfd, F_ULOCK, 0);

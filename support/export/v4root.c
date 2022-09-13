@@ -198,7 +198,7 @@ static int v4root_add_parents(nfs_export *exp)
  * looking for components of the v4 mount.
  */
 void
-v4root_set()
+v4root_set(void)
 {
 	nfs_export	*exp;
 	int	i;
