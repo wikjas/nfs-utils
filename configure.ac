@@ -249,6 +249,16 @@ AC_ARG_ENABLE(nfsdcld,
 	enable_nfsdcld=$enableval,
 	enable_nfsdcld="yes")
 
+AC_ARG_ENABLE(nfsrahead,
+	[AS_HELP_STRING([--disable-nfsrahead],[disable nfsrahead command @<:@default=no@:>@])],
+	enable_nfsrahead=$enableval,
+	enable_nfsrahead="yes")
+	AM_CONDITIONAL(CONFIG_NFSRAHEAD, [test "$enable_nfsrahead" = "yes" ])
+	if test "$enable_nfsrahead" = yes; then
+		dnl Check for -lmount
+		PKG_CHECK_MODULES([LIBMOUNT], [mount])
+	fi
+
 AC_ARG_ENABLE(nfsdcltrack,
 	[AS_HELP_STRING([--disable-nfsdcltrack],[disable NFSv4 clientid tracking programs @<:@default=no@:>@])],
 	enable_nfsdcltrack=$enableval,
@@ -272,9 +282,6 @@ AC_LIBCAP
 
 dnl Check for -lxml2
 AC_LIBXML2
-
-dnl Check for -lmount
-PKG_CHECK_MODULES([LIBMOUNT], [mount])
 
 # Check whether user wants TCP wrappers support
 AC_TCP_WRAPPERS
