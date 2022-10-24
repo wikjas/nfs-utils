@@ -187,10 +187,7 @@ static void bl_add_disk(char *filepath)
 	}
 
 	if (disk && diskpath) {
-		if (serial) {
-			free(serial->data);
-			free(serial);
-		}
+		bl_free_scsi_string(serial);
 		return;
 	}
 
@@ -228,10 +225,7 @@ static void bl_add_disk(char *filepath)
 			disk->size = size;
 			disk->valid_path = path;
 		}
-		if (serial) {
-			free(serial->data);
-			free(serial);
-		}
+		bl_free_scsi_string(serial);
 	}
 	return;
 
@@ -241,10 +235,7 @@ static void bl_add_disk(char *filepath)
 			free(path->full_path);
 		free(path);
 	}
-	if (serial) {
-		free(serial->data);
-		free(serial);
-	}
+	bl_free_scsi_string(serial);
 	return;
 }
 
