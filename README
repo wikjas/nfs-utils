@@ -70,7 +70,7 @@ scripts can be written to work correctly.
 3.1.  SERVER STARTUP
 
 
-   A/  mount -t nfsd /proc/fs/nfsd
+   A/  mount -t nfsd nfsd /proc/fs/nfsd
       This filesystem needs to be mount before most daemons,
       particularly exportfs, mountd, svcgssd, idmapd.
       It could be mounted once, or the script that starts each daemon
