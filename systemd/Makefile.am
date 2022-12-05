@@ -82,7 +82,5 @@ install-data-hook: $(unit_files) $(modprobe_files)
 else
 install-data-hook: $(modprobe_files)
 endif
-if INSTALL_MODPROBEDIR
-	mkdir -p $(DESTDIR)$(modprobedir)
-	cp $(modprobe_files) $(DESTDIR)$(modprobedir)
-endif
+	mkdir -p $(DESTDIR)/usr/lib/modprobe.d
+	cp $(modprobe_files) $(DESTDIR)/usr/lib/modprobe.d/
