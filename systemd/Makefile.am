@@ -2,6 +2,9 @@
 
 MAINTAINERCLEANFILES = Makefile.in
 
+udev_rulesdir = /usr/lib/udev/rules.d/
+udev_files = 60-nfs.rules
+
 unit_files =  \
     nfs-client.target \
     rpc_pipefs.target \
@@ -51,7 +54,7 @@ endif
 
 man5_MANS	= nfs.conf.man
 man7_MANS	= nfs.systemd.man
-EXTRA_DIST = $(unit_files) $(man5_MANS) $(man7_MANS)
+EXTRA_DIST = $(unit_files) $(udev_files) $(man5_MANS) $(man7_MANS)
 
 generator_dir = $(unitdir)/../system-generators
 
@@ -73,8 +76,10 @@ rpc_pipefs_generator_LDADD = ../support/nfs/libnfs.la
 
 if INSTALL_SYSTEMD
 genexec_PROGRAMS = nfs-server-generator rpc-pipefs-generator
-install-data-hook: $(unit_files)
+install-data-hook: $(unit_files) $(udev_files)
 	mkdir -p $(DESTDIR)/$(unitdir)
 	cp $(unit_files) $(DESTDIR)/$(unitdir)
 	cp $(rpc_pipefs_mount_file) $(DESTDIR)/$(unitdir)/$(rpc_pipefsmount)
+	mkdir -p $(DESTDIR)/$(udev_rulesdir)
+	cp $(udev_files) $(DESTDIR)/$(udev_rulesdir)
 endif
