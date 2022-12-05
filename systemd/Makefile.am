@@ -2,8 +2,6 @@
 
 MAINTAINERCLEANFILES = Makefile.in
 
-modprobe_files = 50-nfs.conf
-
 unit_files =  \
     nfs-client.target \
     rpc_pipefs.target \
@@ -53,7 +51,7 @@ endif
 
 man5_MANS	= nfs.conf.man
 man7_MANS	= nfs.systemd.man
-EXTRA_DIST = $(unit_files) $(modprobe_files) $(man5_MANS) $(man7_MANS)
+EXTRA_DIST = $(unit_files) $(man5_MANS) $(man7_MANS)
 
 generator_dir = $(unitdir)/../system-generators
 
@@ -75,12 +73,8 @@ rpc_pipefs_generator_LDADD = ../support/nfs/libnfs.la
 
 if INSTALL_SYSTEMD
 genexec_PROGRAMS = nfs-server-generator rpc-pipefs-generator
-install-data-hook: $(unit_files) $(modprobe_files)
+install-data-hook: $(unit_files)
 	mkdir -p $(DESTDIR)/$(unitdir)
 	cp $(unit_files) $(DESTDIR)/$(unitdir)
 	cp $(rpc_pipefs_mount_file) $(DESTDIR)/$(unitdir)/$(rpc_pipefsmount)
-else
-install-data-hook: $(modprobe_files)
 endif
-	mkdir -p $(DESTDIR)/usr/lib/modprobe.d
-	cp $(modprobe_files) $(DESTDIR)/usr/lib/modprobe.d/
