@@ -346,27 +346,27 @@ static int uuid_by_path(char *path, int type, size_t uuidlen, char *uuid)
 
 	/* Possible sources of uuid are
 	 * - blkid uuid
-	 * - statfs64 uuid
+	 * - statfs uuid
 	 *
-	 * On some filesystems (e.g. vfat) the statfs64 uuid is simply an
+	 * On some filesystems (e.g. vfat) the statfs uuid is simply an
 	 * encoding of the device that the filesystem is mounted from, so
 	 * it we be very bad to use that (as device numbers change).  blkid
 	 * must be preferred.
-	 * On other filesystems (e.g. btrfs) the statfs64 uuid contains
+	 * On other filesystems (e.g. btrfs) the statfs uuid contains
 	 * important info that the blkid uuid cannot contain:  This happens
 	 * when multiple subvolumes are exported (they have the same
-	 * blkid uuid but different statfs64 uuids).
+	 * blkid uuid but different statfs uuids).
 	 * We rely on get_uuid_blkdev *knowing* which is which and not returning
-	 * a uuid for filesystems where the statfs64 uuid is better.
+	 * a uuid for filesystems where the statfs uuid is better.
 	 *
 	 */
-	struct statfs64 st;
+	struct statfs st;
 	char fsid_val[17];
 	const char *blkid_val = NULL;
 	const char *val;
 	int rc;
 
-	rc = nfsd_path_statfs64(path, &st);
+	rc = nfsd_path_statfs(path, &st);
 
 	if (type == 0 && rc == 0) {
 		const unsigned long *bad;

@@ -513,7 +513,7 @@ validate_export(nfs_export *exp)
 	 */
 	struct stat stb;
 	char *path = exportent_realpath(&exp->m_export);
-	struct statfs64 stf;
+	struct statfs stf;
 	int fs_has_fsid = 0;
 
 	if (stat(path, &stb) < 0) {
@@ -528,7 +528,7 @@ validate_export(nfs_export *exp)
 	if (!can_test())
 		return;
 
-	if (!statfs64(path, &stf) &&
+	if (!statfs(path, &stf) &&
 	    (stf.f_fsid.__val[0] || stf.f_fsid.__val[1]))
 		fs_has_fsid = 1;
 
