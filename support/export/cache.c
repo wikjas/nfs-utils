@@ -410,11 +410,15 @@ static char *next_mnt(void **v, char *p)
 		*v = f;
 	} else
 		f = *v;
-	while ((me = getmntent(f)) != NULL && l > 1) {
+	while ((me = getmntent(f)) != NULL && l >= 1) {
 		char *mnt_dir = nfsd_path_strip_root(me->mnt_dir);
 
 		if (!mnt_dir)
 			continue;
+
+		/* Everything below "/" is a proper sub-mount */
+		if (strcmp(p, "/") == 0)
+			return mnt_dir;
 
 		if (strncmp(mnt_dir, p, l) == 0 && mnt_dir[l] == '/')
 			return mnt_dir;
