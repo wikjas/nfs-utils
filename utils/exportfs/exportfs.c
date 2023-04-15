@@ -743,6 +743,7 @@ dump(int verbose, int export_format)
 #endif
 			}
 			secinfo_show(stdout, ep);
+			xprtsecinfo_show(stdout, ep);
 			printf("%c\n", (c != '(')? ')' : ' ');
 		}
 	}

@@ -936,6 +936,7 @@ static void write_fsloc(char **bp, int *blen, struct exportent *ep)
 	release_replicas(servers);
 }
 #endif
+
 static void write_secinfo(char **bp, int *blen, struct exportent *ep, int flag_mask)
 {
 	struct sec_entry *p;
@@ -953,7 +954,20 @@ static void write_secinfo(char **bp, int *blen, struct exportent *ep, int flag_m
 		qword_addint(bp, blen, p->flav->fnum);
 		qword_addint(bp, blen, p->flags & flag_mask);
 	}
+}
 
+static void write_xprtsec(char **bp, int *blen, struct exportent *ep)
+{
+	struct xprtsec_entry *p;
+
+	for (p = ep->e_xprtsec; p->info; p++);
+	if (p == ep->e_xprtsec)
+		return;
+
+	qword_add(bp, blen, "xprtsec");
+	qword_addint(bp, blen, p - ep->e_xprtsec);
+	for (p = ep->e_xprtsec; p->info; p++)
+		qword_addint(bp, blen, p->info->number);
 }
 
 static int dump_to_cache(int f, char *buf, int blen, char *domain,
@@ -996,6 +1010,7 @@ static int dump_to_cache(int f, char *buf, int blen, char *domain,
 			qword_add(&bp, &blen, "uuid");
 			qword_addhex(&bp, &blen, u, 16);
 		}
+		write_xprtsec(&bp, &blen, exp);
 		xlog(D_AUTH, "granted access to %s for %s",
 		     path, *domain == '$' ? domain+1 : domain);
 	} else {

@@ -99,6 +99,7 @@ static void init_exportent (struct exportent *ee, int fromkernel)
 	ee->e_fslocmethod = FSLOC_NONE;
 	ee->e_fslocdata = NULL;
 	ee->e_secinfo[0].flav = NULL;
+	ee->e_xprtsec[0].info = NULL;
 	ee->e_nsquids = 0;
 	ee->e_nsqgids = 0;
 	ee->e_uuid = NULL;
@@ -248,6 +249,17 @@ void secinfo_show(FILE *fp, struct exportent *ep)
 	}
 }
 
+void xprtsecinfo_show(FILE *fp, struct exportent *ep)
+{
+	struct xprtsec_entry *p1, *p2;
+
+	for (p1 = ep->e_xprtsec; p1->info; p1 = p2) {
+		fprintf(fp, ",xprtsec=%s", p1->info->name);
+		for (p2 = p1 + 1; p2->info && (p1->flags == p2->flags); p2++)
+			fprintf(fp, ":%s", p2->info->name);
+	}
+}
+
 static void
 fprintpath(FILE *fp, const char *path)
 {
@@ -344,6 +356,7 @@ putexportent(struct exportent *ep)
 	}
 	fprintf(fp, "anonuid=%d,anongid=%d", ep->e_anonuid, ep->e_anongid);
 	secinfo_show(fp, ep);
+	xprtsecinfo_show(fp, ep);
 	fprintf(fp, ")\n");
 }
 
@@ -478,6 +491,75 @@ static unsigned int parse_flavors(char *str, struct exportent *ep)
 		if (bit < 0)
 			return 0;
 		out |= 1<<bit;
+	}
+	return out;
+}
+
+static const struct xprtsec_info xprtsec_name2info[] = {
+	{ "none",	NFSEXP_XPRTSEC_NONE },
+	{ "tls",	NFSEXP_XPRTSEC_TLS },
+	{ "mtls",	NFSEXP_XPRTSEC_MTLS },
+	{ NULL,		0 }
+};
+
+static const struct xprtsec_info *find_xprtsec_info(const char *name)
+{
+	const struct xprtsec_info *info;
+
+	for (info = xprtsec_name2info; info->name; info++)
+		if (strcmp(info->name, name) == 0)
+			return info;
+	return NULL;
+}
+
+/*
+ * Append the given xprtsec mode to the exportent's e_xprtsec array,
+ * or do nothing if it's already there. Returns the index of flavor in
+ * the resulting array in any case.
+ */
+static int xprtsec_addmode(const struct xprtsec_info *info, struct exportent *ep)
+{
+	struct xprtsec_entry *p;
+
+	for (p = ep->e_xprtsec; p->info; p++)
+		if (p->info == info || p->info->number == info->number)
+			return p - ep->e_xprtsec;
+
+	if (p - ep->e_xprtsec >= XPRTSECMODE_COUNT) {
+		xlog(L_ERROR, "more than %d xprtsec modes on an export\n",
+			XPRTSECMODE_COUNT);
+		return -1;
+	}
+	p->info = info;
+	p->flags = ep->e_flags;
+	(p + 1)->info = NULL;
+	return p - ep->e_xprtsec;
+}
+
+/*
+ * @str is a colon seperated list of transport layer security modes.
+ * Their order is recorded in @ep, and a bitmap corresponding to the
+ * list is returned.
+ *
+ * A zero return indicates an error.
+ */
+static unsigned int parse_xprtsec(char *str, struct exportent *ep)
+{
+	unsigned int out = 0;
+	char *name;
+
+	while ((name = strsep(&str, ":"))) {
+		const struct xprtsec_info *info = find_xprtsec_info(name);
+		int bit;
+
+		if (!info) {
+			xlog(L_ERROR, "unknown xprtsec mode %s\n", name);
+			return 0;
+		}
+		bit = xprtsec_addmode(info, ep);
+		if (bit < 0)
+			return 0;
+		out |= 1 << bit;
 	}
 	return out;
 }
@@ -686,6 +768,9 @@ bad_option:
 		} else if (strncmp(opt, "sec=", 4) == 0) {
 			active = parse_flavors(opt+4, ep);
 			if (!active)
+				goto bad_option;
+		} else if (strncmp(opt, "xprtsec=", 8) == 0) {
+			if (!parse_xprtsec(opt + 8, ep))
 				goto bad_option;
 		} else {
 			xlog(L_ERROR, "%s:%d: unknown keyword \"%s\"\n",
