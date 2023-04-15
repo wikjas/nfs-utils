@@ -122,7 +122,7 @@ getexportent(int fromkernel, int fromexports)
 	if (first || (ok = getexport(exp, sizeof(exp))) == 0) {
 		has_default_opts = 0;
 		has_default_subtree_opts = 0;
-	
+
 		init_exportent(&def_ee, fromkernel);
 
 		ok = getpath(def_ee.e_path, sizeof(def_ee.e_path));
@@ -146,7 +146,7 @@ getexportent(int fromkernel, int fromexports)
 	if (exp[0] == '-' && !fromkernel) {
 		if (parseopts(exp + 1, &def_ee, 0, &has_default_subtree_opts) < 0)
 			return NULL;
-		
+
 		has_default_opts = 1;
 
 		ok = getexport(exp, sizeof(exp));
@@ -239,7 +239,6 @@ void secinfo_show(FILE *fp, struct exportent *ep)
 	if (ep->e_secinfo[0].flav == NULL)
 		secinfo_addflavor(find_flavor("sys"), ep);
 	for (p1=ep->e_secinfo; p1->flav; p1=p2) {
-
 		fprintf(fp, ",sec=%s", p1->flav->flavour);
 		for (p2=p1+1; (p2->flav != NULL) && (p1->flags == p2->flags);
 								p2++) {
@@ -621,7 +620,7 @@ parseopts(char *cp, struct exportent *ep, int warn, int *had_subtree_opt_ptr)
 			ep->e_anonuid = strtol(opt+8, &oe, 10);
 			if (opt[8]=='\0' || *oe != '\0') {
 				xlog(L_ERROR, "%s: %d: bad anonuid \"%s\"\n",
-				     flname, flline, opt);	
+				     flname, flline, opt);
 bad_option:
 				free(opt);
 				return -1;
@@ -631,7 +630,7 @@ bad_option:
 			ep->e_anongid = strtol(opt+8, &oe, 10);
 			if (opt[8]=='\0' || *oe != '\0') {
 				xlog(L_ERROR, "%s: %d: bad anongid \"%s\"\n",
-				     flname, flline, opt);	
+				     flname, flline, opt);
 				goto bad_option;
 			}
 		} else if (strncmp(opt, "squash_uids=", 12) == 0) {
@@ -649,13 +648,13 @@ bad_option:
 				setflags(NFSEXP_FSID, active, ep);
 			} else {
 				ep->e_fsid = strtoul(opt+5, &oe, 0);
-				if (opt[5]!='\0' && *oe == '\0') 
+				if (opt[5]!='\0' && *oe == '\0')
 					setflags(NFSEXP_FSID, active, ep);
 				else if (valid_uuid(opt+5))
 					ep->e_uuid = strdup(opt+5);
 				else {
 					xlog(L_ERROR, "%s: %d: bad fsid \"%s\"\n",
-					     flname, flline, opt);	
+					     flname, flline, opt);
 					goto bad_option;
 				}
 			}
@@ -709,7 +708,7 @@ out:
 	if (warn && !had_subtree_opt)
 		xlog(L_WARNING, "%s [%d]: Neither 'subtree_check' or 'no_subtree_check' specified for export \"%s:%s\".\n"
 				"  Assuming default behaviour ('no_subtree_check').\n"
-		     		"  NOTE: this default has changed since nfs-utils version 1.0.x\n",
+				"  NOTE: this default has changed since nfs-utils version 1.0.x\n",
 
 				flname, flline,
 				ep->e_hostname, ep->e_path);
