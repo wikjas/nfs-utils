@@ -778,6 +778,7 @@ static void nfsd_fh(int f)
 	int dev_missing = 0;
 	char buf[RPC_CHAN_BUF_SIZE], *bp;
 	int blen;
+	int did_uncover = 0;
 
 	blen = cache_read(f, buf, sizeof(buf));
 	if (blen <= 0 || buf[blen-1] != '\n') return;
@@ -814,6 +815,11 @@ static void nfsd_fh(int f)
 		nfs_export *next_exp;
 		for (exp = exportlist[i].p_head; exp; exp = next_exp) {
 			char *path;
+
+			if (!did_uncover && parsed.fsidnum && parsed.fsidtype == FSID_NUM && exp->m_export.e_reexport != REEXP_NONE) {
+				reexpdb_uncover_subvolume(parsed.fsidnum);
+				did_uncover = 1;
+			}
 
 			if (exp->m_export.e_flags & NFSEXP_CROSSMOUNT) {
 				static nfs_export *prev = NULL;
