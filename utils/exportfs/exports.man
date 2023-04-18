@@ -468,6 +468,37 @@ will only work if all clients use a consistent security policy.  Note
 that early kernels did not support this export option, and instead
 enabled security labels by default.
 
+.TP
+.IR reexport= auto-fsidnum|predefined-fsidnum
+This option helps when a NFS share is re-exported. Since the NFS server
+needs a unique identifier for each exported filesystem and a NFS share
+cannot provide such, usually a manual fsid is needed.
+As soon
+.IR crossmnt
+is used manually assigning fsid won't work anymore. This is where this
+option becomes handy. It will automatically assign a numerical fsid
+to exported NFS shares. The fsid and path relations are stored in a SQLite
+database. If
+.IR auto-fsidnum
+is selected, the fsid is also autmatically allocated.
+.IR predefined-fsidnum
+assumes pre-allocated fsid numbers and will just look them up.
+This option depends also on the kernel, you will need at least kernel version
+5.19.
+Since
+.IR reexport=
+can automatically allocate and assign numerical fsids, it is no longer possible
+to have numerical fsids in other exports as soon this option is used in at least
+one export entry.
+
+The association between fsid numbers and paths is stored in a SQLite database.
+Don't edit or remove the database unless you know exactly what you're doing.
+.IR predefined-fsidnum
+is useful when you have used
+.IR auto-fsidnum
+before and don't want further entries stored.
+
+
 .SS User ID Mapping
 .PP
 .B nfsd
