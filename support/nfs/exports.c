@@ -31,6 +31,7 @@
 #include "xlog.h"
 #include "xio.h"
 #include "pseudoflavors.h"
+#include "reexport.h"
 
 #define EXPORT_DEFAULT_FLAGS	\
   (NFSEXP_READONLY|NFSEXP_ROOTSQUASH|NFSEXP_GATHERED_WRITES|NFSEXP_NOSUBTREECHECK)
@@ -104,6 +105,7 @@ static void init_exportent (struct exportent *ee, int fromkernel)
 	ee->e_nsqgids = 0;
 	ee->e_uuid = NULL;
 	ee->e_ttl = default_ttl;
+	ee->e_reexport = REEXP_NONE;
 }
 
 struct exportent *
@@ -313,6 +315,23 @@ putexportent(struct exportent *ep)
 	}
 	if (ep->e_uuid)
 		fprintf(fp, "fsid=%s,", ep->e_uuid);
+
+	if (ep->e_reexport) {
+		fprintf(fp, "reexport=");
+		switch (ep->e_reexport) {
+			case REEXP_AUTO_FSIDNUM:
+				fprintf(fp, "auto-fsidnum");
+				break;
+			case REEXP_PREDEFINED_FSIDNUM:
+				fprintf(fp, "predefined-fsidnum");
+				break;
+			default:
+				xlog(L_ERROR, "unknown reexport method %i", ep->e_reexport);
+				fprintf(fp, "none");
+		}
+		fprintf(fp, ",");
+	}
+
 	if (ep->e_mountpoint)
 		fprintf(fp, "mountpoint%s%s,",
 			ep->e_mountpoint[0]?"=":"", ep->e_mountpoint);
@@ -619,6 +638,7 @@ parseopts(char *cp, struct exportent *ep, int warn, int *had_subtree_opt_ptr)
 	char 	*flname = efname?efname:"command line";
 	int	flline = efp?efp->x_line:0;
 	unsigned int active = 0;
+	int saw_reexport = 0;
 
 	squids = ep->e_squids; nsquids = ep->e_nsquids;
 	sqgids = ep->e_sqgids; nsqgids = ep->e_nsqgids;
@@ -725,6 +745,13 @@ bad_option:
 			}
 		} else if (strncmp(opt, "fsid=", 5) == 0) {
 			char *oe;
+
+			if (saw_reexport) {
+				xlog(L_ERROR, "%s:%d: 'fsid=' has to be before 'reexport=' %s\n",
+				     flname, flline, opt);
+				goto bad_option;
+			}
+
 			if (strcmp(opt+5, "root") == 0) {
 				ep->e_fsid = 0;
 				setflags(NFSEXP_FSID, active, ep);
@@ -772,6 +799,41 @@ bad_option:
 		} else if (strncmp(opt, "xprtsec=", 8) == 0) {
 			if (!parse_xprtsec(opt + 8, ep))
 				goto bad_option;
+		} else if (strncmp(opt, "reexport=", 9) == 0) {
+			char *strategy = strchr(opt, '=');
+
+			if (!strategy) {
+				xlog(L_ERROR, "%s:%d: bad option %s\n",
+				     flname, flline, opt);
+				goto bad_option;
+			}
+			strategy++;
+
+			if (saw_reexport) {
+				xlog(L_ERROR, "%s:%d: only one 'reexport=' is allowed%s\n",
+				     flname, flline, opt);
+				goto bad_option;
+			}
+
+			if (strcmp(strategy, "auto-fsidnum") == 0) {
+				ep->e_reexport = REEXP_AUTO_FSIDNUM;
+			} else if (strcmp(strategy, "predefined-fsidnum") == 0) {
+				ep->e_reexport = REEXP_PREDEFINED_FSIDNUM;
+			} else if (strcmp(strategy, "none") == 0) {
+				ep->e_reexport = REEXP_NONE;
+			} else {
+				xlog(L_ERROR, "%s:%d: bad option %s\n",
+				     flname, flline, strategy);
+				goto bad_option;
+			}
+
+			if (reexpdb_apply_reexport_settings(ep, flname, flline) != 0)
+				goto bad_option;
+
+			if (ep->e_fsid)
+				setflags(NFSEXP_FSID, active, ep);
+
+			saw_reexport = 1;
 		} else {
 			xlog(L_ERROR, "%s:%d: unknown keyword \"%s\"\n",
 					flname, flline, opt);

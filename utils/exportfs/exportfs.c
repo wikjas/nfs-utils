@@ -38,6 +38,7 @@
 #include "exportfs.h"
 #include "xlog.h"
 #include "conffile.h"
+#include "reexport.h"
 
 static void	export_all(int verbose);
 static void	exportfs(char *arg, char *options, int verbose);
@@ -719,6 +720,16 @@ dump(int verbose, int export_format)
 				c = dumpopt(c, "fsid=%d", ep->e_fsid);
 			if (ep->e_uuid)
 				c = dumpopt(c, "fsid=%s", ep->e_uuid);
+			if (ep->e_reexport) {
+				switch (ep->e_reexport) {
+					case REEXP_AUTO_FSIDNUM:
+						c = dumpopt(c, "reexport=%s", "auto-fsidnum");
+						break;
+					case REEXP_PREDEFINED_FSIDNUM:
+						c = dumpopt(c, "reexport=%s", "predefined-fsidnum");
+						break;
+				}
+			}
 			if (ep->e_mountpoint)
 				c = dumpopt(c, "mountpoint%s%s",
 					    ep->e_mountpoint[0]?"=":"",
