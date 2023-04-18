@@ -717,6 +717,7 @@ AC_CONFIG_FILES([
 	support/nsm/Makefile
 	support/nfsidmap/Makefile
 	support/nfsidmap/libnfsidmap.pc
+	support/reexport/Makefile
 	tools/Makefile
 	tools/locktest/Makefile
 	tools/nlmtest/Makefile

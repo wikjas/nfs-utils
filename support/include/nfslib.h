@@ -98,6 +98,7 @@ struct exportent {
 	struct xprtsec_entry e_xprtsec[XPRTSECMODE_COUNT + 1];
 	unsigned int	e_ttl;
 	char *		e_realpath;
+	int		e_reexport;
 };
 
 struct rmtabent {
