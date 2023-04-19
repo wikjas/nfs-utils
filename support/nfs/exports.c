@@ -37,13 +37,13 @@
   (NFSEXP_READONLY|NFSEXP_ROOTSQUASH|NFSEXP_GATHERED_WRITES|NFSEXP_NOSUBTREECHECK)
 
 struct flav_info flav_map[] = {
-	{ "krb5",	RPC_AUTH_GSS_KRB5	},
-	{ "krb5i",	RPC_AUTH_GSS_KRB5I	},
-	{ "krb5p",	RPC_AUTH_GSS_KRB5P	},
-	{ "unix",	AUTH_UNIX		},
-	{ "sys",	AUTH_SYS		},
-	{ "null",	AUTH_NULL		},
-	{ "none",	AUTH_NONE		},
+	{ "krb5",	RPC_AUTH_GSS_KRB5,	1},
+	{ "krb5i",	RPC_AUTH_GSS_KRB5I,	1},
+	{ "krb5p",	RPC_AUTH_GSS_KRB5P,	1},
+	{ "unix",	AUTH_UNIX,		0},
+	{ "sys",	AUTH_SYS,		0},
+	{ "null",	AUTH_NULL,		0},
+	{ "none",	AUTH_NONE,		0},
 };
 
 const int flav_map_size = sizeof(flav_map)/sizeof(flav_map[0]);

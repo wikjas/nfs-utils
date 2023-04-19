@@ -66,6 +66,8 @@ set_pseudofs_security(struct exportent *pseudo)
 
 		if (!flav->fnum)
 			continue;
+		if (flav->need_krb5 && access("/etc/krb5.keytab", F_OK) != 0)
+			continue;
 
 		i = secinfo_addflavor(flav, pseudo);
 		new = &pseudo->e_secinfo[i];
